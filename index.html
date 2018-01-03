@@ -234,6 +234,29 @@
   #star5:checked + label {
     color: yellow;
   }
+  .dropdown {
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #54FF9F;
+    min-width: 120px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 100;
+    margin-top: 70px;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: 6px 16px;
+    text-decoration: none;
+    display: block;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
 </style>
 
 <!-- logo -->
@@ -251,7 +274,7 @@
   </div>
 </div>
 
-<div class="container-fluid">
+<div data-role="page" id="body" class="container-fluid">
 
   <!--- menu balk -->
   <div class="row box">
@@ -274,18 +297,30 @@
     </div>
   </div>
 
+  
   <!-- Main Page -->
-  <div id="mainPage" style="display;">
+  <div id="mainPage" style="display; position: absolute; width: 100%;">
 
 
     <!-- Drankjes / plaatjes input -->
     <div align="middle">
 
-      <div class="btn">
+      <div id="Warning" style="width: 70%; margin-top: 100px; background-color: rgba(00, 00, 00, 0.8); z-index: 69; border-radius: 20px; display:none; position:absolute; left:15%">
+  <div style="color: white; width: 80%;">
+    <h2>Warning</h2>
+    <t style="margin-bottom: 100px;">Before being able to use this app, you must first fill in all you personal information.</t>
+    <button onclick="hideWarning()" class="btn" style="margin-bottom: 10px; margin-top: 10px; color: white; background-color: rgba(00,00,00,0.2); border: 2px solid #FFFFFF;">I understand</button>     
+    </div>
+</div>
+      
+      <div class="btn dropdown">
         <a id="Beer">
-          <div onclick="Beer() + AddToList()">
+              <div class="dropdown-content btn">
+    <a class="btn" onclick="AddToList() + volumeBeer50()">50 cL</a>
+    <a class="btn" onclick="AddToList() + volumeBeer33()">33 cL</a>
+    <a class="btn" onclick="AddToList() + volumeBeer20()">20 cL</a>
+  </div>
             <img src="https://www.emojibase.com/resources/img/emojis/apple/x1f37a.png.pagespeed.ic.BvtGLK8p4U.png" class="image">
-          </div>
         </a>
         <p>Beer</p>
       </div>
@@ -320,6 +355,8 @@
     </div>
 
     <div align="middle">
+
+
       <!-- fysieke lijst van drankjes -->
       <div class="btn greyBox220">List of drinks:
         <div id="listOfDrinks" style=" width:200px;overflow:scroll"></div>
@@ -336,19 +373,19 @@
       <div align="middle">
 
         <!-- formula alcohol promillage -->
-        <div class="btn greyBoxSmall" style="height: 60px">
+        <div class="btn greyBoxSmall" style="height: 70px">
           <div style="display;" id="showFormula">
-            <p>Promillage: </br><span id="formula"></span> ‰</div>
+            <p>BAC: </br><span id="formula"></span> ‰</div>
           <div id="formulaZero" style="display:none;">
-            <p>Promillage: </br>
+            <p>BAC: </br>
               <p>0 ‰</p>
           </div>
         </div>
 
         <!-- formula time till sober -->
-        <div class="btn greyBoxSmall" style="height: 60px">
+        <div class="btn greyBoxSmall" style="height: 70px">
           <div style="display;" id="showTimeTillSober">
-            <p>Time till sober: </br><span id="timeTillSober"></span> hour</div>
+            <p>Time till sober: </br><span id="timeTillSoberHours"></span> hour(s) <br> <span id="timeTillSoberMinutes"></span> minute(s)</div>
           <div id="timeTillSoberZero" style="display:none;">
             <p>Time till sober: </br>
               <p> --- hour </p>
@@ -360,7 +397,7 @@
       <!-- formula time till able to drive -->
       <div id="ableToDrive" style="display:none; height: 60px" class="greyBox220">
         <div style="display;" id="showTimeTillDrive">
-          <p>Time till allowed to drive: </br><span id="timeTillDrive"></span> hour</div>
+          <p>Time till allowed to drive: </br><span id="timeTillDriveHours"></span> hour(s) <br> <span id="timeTillDriveMinutes"></span> minute(s)</div>
         <div id="timeTillDriveZero" style="display:none;">
           <p>Time till allowed to drive: </br>
             <p> --- hour </p>
@@ -401,12 +438,14 @@
 
       <!-- Reset button -->
       <button class="btn btn-danger shadow" onclick="myReset() + resetCount()">Reset</button>
-
     </div>
+<button onclick="showWarning()">show</button>
   </div>
 
+
+
   <!-- Personal Id Page -->
-  <div id="idPage" style="display:none;">
+  <div id="idPage" style="display:none; width: 100%; position: absolute;">
 
     <div align="middle">
 
@@ -444,6 +483,21 @@
     <option value="0.17">The Netherlands</option> <!-- dit klopt nog niet -->
   </select>
       </h5>
+    
+ <!-- height -->
+<h5>Height<span class="redletter"></span>:
+<input type="number" id="height" onchange="getInfoHeight()" placeholder="e.g. 180" requiered style="width: 100px;"></input>  centimeters</h5>
+
+<!-- type of drinker -->
+  <h5>Type of drinker<span class="redletter">*</span>: 
+      <select onchange="getInfoDrinkType()" id="drinkType" class="btn">
+    <option value="---">---</option>    
+    <option value="0.125"> Moderate drinker (empty stomach) </option>
+    <option value = "0.175"> Moderate drinker (after a meal)
+    <option value = "0.20"> Binge drinker
+    <option value ="0.275"> Chronic alcoholic
+  </select>
+      </h5>
 
         <!--  drivers license -->
         <h5>Do you own a drivers license<span class="redletter">*</span>:
@@ -471,7 +525,6 @@
       </form>
       </div>
 
-
       <!-- wel gesaved -->
       <div id="hasBeenSaved" style="display:none;" align="middle">
         <h5 class="greenletter glyphicon glyphicon-ok">  Your information has been saved
@@ -483,20 +536,19 @@
   </div>
 
  <!-- Info Page -->
-<div id="infoPage" style="display:none;" > 
+<div id="infoPage" style="display:none; width: 100%; position: absolute;" align="middle"> 
 
 <!-- About us -->
-<div class="text-center">  
+<div style="margin-right:30px;">  
 <h4>About us</h4>
   <h5>We, the beertappers are four enthousiastic students for the middle of The Netherlands. If you have any tips to improve our app, please contact <span class="blue"><ins>Beer@tappers.com</ins></span>.</h5>
         <h4>About our app</h4>
         <h5>We wanted to create and app to improve the awairness for people with the usage of alcohol. Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer Disclamer</h5>
       </div>
 
-
       <!-- rate System -->
-      <div align="middle">
-        <h5 style="margin-top: 40px;">We are still in the process of improving our app. Please, do rate our app so we can improve your experience.</h5>
+      <div align="middle"  style="margin-right:30px;">
+        <h5 style="margin-top: 40px;">We are still adapting our app. Please, do rate our app so we can improve your experience.</h5>
 
         <input type="checkbox" id="star1" name="ratingStars" onchange="changeStar1()" />
         <label for="star1" class="yellowStar" style="
@@ -537,7 +589,7 @@
     </div>
 
     <!-- Menu Dots-->
-    <div align="middle">
+    <div align="middle" style="position: absolute; width: 100%; margin-top: 550px">
       <input type="radio" id="dot1" name="menuDots" checked/>
       <label for="dot1" class="dot" style="width: 6px;
 	height: 6px;
@@ -582,4 +634,8 @@
 
   </div>
   <!-- einde container fluid-->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+<script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="//code.jquery.com/mobile/1.5.0-alpha.1/jquery.mobile-1.5.0-alpha.1.min.js"></script>
+<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+

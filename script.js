@@ -8,6 +8,50 @@ function closeNav() {
     document.getElementById("myNav").style.width = "0%";
 }
 
+// swipe functions
+var mainPage = 1;
+var idPage = 0;
+var infoPage = 0;
+  
+$(document).on("pagecreate","#body",function swipe(){
+  $("#body").on("swipeleft",function swipe(){
+    if (mainPage == 1)  {
+    $("#mainPage").hide("slide", {direction: "left"} );
+    $("#idPage").show("slide", {direction: "right"}); //naar idPage
+    mainPage = 0;
+    idPage = 1;
+   ShowTwo();
+      document.getElementById("mainPageHead").innerHTML = "Personal ID";
+    }
+    else if (idPage == 1) {
+    $("#idPage").hide("slide", {direction: "left"});
+    $("#infoPage").show("slide", {direction: "right"}); //naar infoPage
+    idPage = 0;
+    infoPage = 1;
+         ShowThree();
+      document.getElementById("mainPageHead").innerHTML = "More Information";
+    }
+  });
+  $("#body").on("swiperight",function swipe(){
+    if (idPage == 1) {
+    $("#mainPage").show("slide", {direction: "left"});
+    $("#idPage").hide("slide", {direction: "right"}); //naar mainPage
+    idPage = 0;
+    mainPage = 1;
+         ShowOne();
+      document.getElementById("mainPageHead").innerHTML = "Home";
+    }
+    else if(infoPage == 1){
+    $("#infoPage").hide("slide", {direction: "right"});
+    $("#idPage").show("slide", {direction: "left"});//naar idPage
+    idPage = 1;
+    infoPage = 0;
+         ShowTwo();
+      document.getElementById("mainPageHead").innerHTML = "Personal ID";
+    }
+  })
+});
+
 //menu dots
   function ShowOne() { 
   document.getElementById("dot1").checked = true;
@@ -31,6 +75,9 @@ function closeNav() {
   document.getElementById("infoPage").style.display = "none";
   document.getElementById("idPage").style.display = "none";
     ShowOne();
+    mainPage = 1;
+    idPage = 0;
+    infoPage = 0;
 }
   
   function ShowIdPage() { 
@@ -41,6 +88,9 @@ function closeNav() {
   document.getElementById("mainPage").style.display = "none";
   document.getElementById("infoPage").style.display = "none";
     ShowTwo();
+    mainPage = 0;
+    idPage = 1;
+    infoPage = 0;
 }
     
   function ShowInfoPage() { 
@@ -51,16 +101,22 @@ function closeNav() {
   document.getElementById("mainPage").style.display = "none";
   document.getElementById("idPage").style.display = "none";
     ShowThree();
+    mainPage = 0;
+    idPage = 0;
+    infoPage = 1;
 }
   
 
 
 //Main Page
-//algerithm for alcohol promillage
+//algorithm for alcohol promillage
 var amountDrinks = [];
 var type = "";
-var gender = "";  
+var genderA = ""; 
 var weight = ""; 
+var height = "";
+var drinkType = ""; 
+var drinkTypeNumber ="";
 var nationality = "";
 var driversLicense = "";
 var alcoholAllowedToDrive = "";
@@ -68,12 +124,27 @@ var alcoholConsumed = "";
 var name = ""
 var age = ""; 
 
-var gramAlcoholBeer = 13.20; //gram 					5% in 33 cL (0.05x33x8)
+function volumeBeer50() {
+  gramAlcoholBeer = 0.4*50;
+  Beer();
+}
+function volumeBeer33() {
+  gramAlcoholBeer = 0.4*33;
+  Beer();
+}
+function volumeBeer20() {
+  gramAlcoholBeer = 0.4*20;
+  Beer();
+}
+
+
+var gramAlcoholBeer; //gram 					        5% in 33 cL (0.05x33x8)
 var gramAlcoholWine = 9.60; //gram						12% in 10 cL
 var gramAlcoholCocktail = 12.32; //gram				5.6% in 27.5 cL
 var gramAlcoholShot = 14; //gram 							35% in 5 cL
 var longestTime = ""; 
 
+//info halen uit Personal ID
   function getInfoName() {
     name = document.getElementById("Name").value;
   }
@@ -93,7 +164,18 @@ var longestTime = "";
   function getInfoNationality() {
   nationality = document.getElementById("Nationality").value;
 } 
+
+  function getInfoDrinkType(){
+    drinkType = document.getElementById("drinkType").value;
+  }
+  function getInfoHeight(){
+    height = document.getElementById("height").value;
+  }
  
+function getInfoDrinkType(){
+  drinkType = document.getElementById("drinkType").value;
+}
+
   function getInfoHowLong() {
     alcoholAllowedToDrive = 
 document.getElementById("timeSinceLicense").value;
@@ -113,6 +195,7 @@ document.getElementById("timeSinceLicense").value;
    alcoholPromillage();
 }
 
+//BAC-waarde berekenen
   function alcoholPromillage() {
           var BACFormula = valueFormula1 + valueFormula2 + valueFormula3 + valueFormula4 + valueFormula5 + valueFormula6 + valueFormula7 + valueFormula8 + valueFormula9 + valueFormula10;
           
@@ -122,38 +205,40 @@ document.getElementById("timeSinceLicense").value;
           else {
             document.getElementById("formula").innerHTML = BACFormula.toFixed(2); //rounding off en BAC formula
           }  
-    calculateTime();
-    colorCircle();
-    calculateTimeDrive();
         }
   
+//tijd berekenen tot sober en tot je weer mag rijden
   function calculateTime () {
     var BACFormula = valueFormula1 + valueFormula2 + valueFormula3 + valueFormula4 + valueFormula5 + valueFormula6 + valueFormula7 + valueFormula8 + valueFormula9 + valueFormula10;
     var BACTime = BACFormula/nationality;
-    
-    
-    if (BACTime <= 0) {
-      document.getElementById("timeTillSober").innerHTML = 0;
-    }
-    else {
-    document.getElementById("timeTillSober").innerHTML = BACTime.toFixed(2);
-    }
-  }
-
-  function calculateTimeDrive () {
-    var BACFormula = valueFormula1 + valueFormula2 + valueFormula3 + valueFormula4 + valueFormula5 + valueFormula6 + valueFormula7 + valueFormula8 + valueFormula9 + valueFormula10;
-    var BACTime = BACFormula/nationality;
-    
+    var BACTimeHours = BACTime.toString().split('.')[0];
+    var BACTimeMinutes = (BACTime - BACTimeHours)*60;
     var BACTimeDrive = BACTime - alcoholAllowedToDrive/nationality;
-    
-    if (BACTimeDrive <= 0) {
-      document.getElementById("timeTillDrive").innerHTML = 0;
+    var BACTimeDriveHours = BACTimeDrive.toString().split('.')[0];
+    var BACTimeDriveMinutes = (BACTimeDrive - BACTimeDriveHours)*60;
+    if (BACTime <= 0){
+      document.getElementById("timeTillSoberHours").innerHTML = 0;
+      document.getElementById("timeTillSoberMinutes").innerHTML = 0;
+      document.getElementById("timeTillDriveHours").innerHTML = 0;
+      document.getElementById("timeTillDriveMinutes").innerHTML = 0;
+    } else {
+      document.getElementById("timeTillSoberHours").innerHTML = BACTimeHours;
+      document.getElementById("timeTillSoberMinutes").innerHTML = BACTimeMinutes.toFixed(0);
+      document.getElementById("timeTillDriveHours").innerHTML = BACTimeDriveHours;
+      document.getElementById("timeTillDriveMinutes").innerHTML = BACTimeDriveMinutes.toFixed(0);
     }
-    else {
-    document.getElementById("timeTillDrive").innerHTML = BACTimeDrive.toFixed(2);
+    if (BACTimeDrive <=0){
+      document.getElementById("timeTillDriveHours").innerHTML = 0;
+      document.getElementById("timeTillDriveMinutes").innerHTML = 0;
     }
   }
 
+function showWarning() {
+  document.getElementById("Warning").style.display = "";
+}
+function hideWarning() {
+  document.getElementById("Warning").style.display = "none";
+}
 
 var valueFormula1 = 0;
 var valueFormula2 = 0;
@@ -177,44 +262,14 @@ var gramAlcohol7 = 0;
 var gramAlcohol8 = 0;
 var gramAlcohol9 = 0;
 var gramAlcohol10 = 0;
-
-var gramAlcoholBeer = 13.20; //gram 					5% in 33 cL (0.05x33x8)
-var gramAlcoholWine = 9.60; //gram						12% in 10 cL
-var gramAlcoholCocktail = 12.32; //gram				5.6% in 27.5 cL
-var gramAlcoholShot = 14; //gram 							35% in 5 cL
-var longestTime = ""; 
   
 function addNumberDrinks() {
   numberDrinks.push(1);
-  addFormulas();
 }
-  
-function addFormulas() { 
-        formula1();
-        formula2();
-        formula3();
-  			formula4();
-  			formula5();
-  			formula6();
-  			formula7();
-  			formula8();
-  			formula9();
-  			formula10();
-      
-      totalPromillage();
-}
-  
-function totalPromillage() { //niet weghalen 
-  var totalDrinks = valueFormula1 + valueFormula2 + valueFormula3 + valueFormula4 + valueFormula5 + valueFormula6 + valueFormula7 + valueFormula8 + valueFormula9 + valueFormula10;
-  
-  alcoholPromillage();
-}
-  
+ 
 function timeAndDrink(){
   var BACFormula = valueFormula1 + valueFormula2 + valueFormula3 + valueFormula4 + valueFormula5 + valueFormula6 + valueFormula7 + valueFormula8 + valueFormula9 + valueFormula10;
-     
-  //alertTooMuch();
-  
+   
     switch (numberDrinks.length + 1) { //laat die plus 1 staan
     case 1:
       answer = 
@@ -260,7 +315,12 @@ function timeAndDrink(){
 }
   
 function alertTooMuch() {
-    alert("Hey " + name + ",\n Your promillage is now at a dangerously high level, \n take a cola or eat something ;)");}
+  if (message == 1) {
+    alert("Hey " + name + ",\n Your promillage is now at a dangerously high level, \n take a cola or eat something ;)");
+    message = 0; }
+  else{
+  }
+}
 
   //Type drink  
  function Beer() {
@@ -516,6 +576,7 @@ var timeFromStart7; //diff7
 var timeFromStart8; //diff8
 var timeFromStart9; //diff9
 var timeFromStart10; //diff10
+var message = 1;  
 
 var herhaal = setInterval(myTimer, 1000);
   
@@ -556,179 +617,204 @@ var herhaal = setInterval(myTimer, 1000);
     t9 = undefined;
     t10 = undefined;
   }
+        formula1();
+        formula2();
+        formula3();
+  			formula4();
+  			formula5();
+  			formula6();
+  			formula7();
+  			formula8();
+  			formula9();
+  			formula10();
+        alcoholPromillage();
+        calculateTime();
+        colorCircle();
+        
 }
-
    //timer one                  
-  function startCount1 () {
+function startCount1 () {
   reset = 0;
   var currentTime = new Date()
   t1 =  Date.parse(currentTime) / 60000; //minutes
 }
-  
-  function formula1() {
-    if (gramAlcohol1/(gender * weight) - nationality/numberDrinks.length * timeFromStart1 > 0) {
-    valueFormula1 = gramAlcohol1/(gender * weight) -nationality/numberDrinks.length * timeFromStart1; 
+
+function formula1() {
+    if (gender == "0.55" && gramAlcohol1/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - drinkType / 60 * timeFromStart1 >0) {
+    valueFormula1 = gramAlcohol1/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - drinkType/60 * timeFromStart1 ;
     }
-    else {
-      valueFormula1 = 0;
+    else if(gender == "0.68" && gramAlcohol1/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart1 >0) {
+    valueFormula1 = gramAlcohol1/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - drinkType / 60 * timeFromStart1;
+    } else {
+      valueFormula1 = 0; 
     }
-    totalPromillage();
   }
 
   //timer two
-  function startCount2 () {
+ function startCount2 () {
   reset = 0;
   var currentTime = new Date()
   t2 =  Date.parse(currentTime) / 60000; //minutes
 }
-  
-   function formula2() {
-      if (gramAlcohol2/(gender * weight) - nationality/numberDrinks.length * timeFromStart2 > 0) {
-    valueFormula2 = gramAlcohol2/(gender * weight) - nationality/numberDrinks.length * timeFromStart2;
-      }
-      else {
-        valueFormula2 = 0;
-      }
-      totalPromillage();
+
+function formula2() {
+    if (gender === "0.55" && gramAlcohol2/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart2 >0) {
+    valueFormula2 = gramAlcohol2/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart2; 
+    }
+    else if(gender === "0.68" && gramAlcohol2/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart2 >0) {
+    valueFormula1 = gramAlcohol2/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart2;
+    } else {
+      valueFormula2 = 0; 
+    }
   }
   
   //timer three
-  function startCount3 () {
+function startCount3 () {
   reset = 0;
   var currentTime = new Date()
   t3 =  Date.parse(currentTime) / 60000; //minutes
 }
-  
-  function formula3() {
-      if (gramAlcohol3/(gender * weight) - nationality/numberDrinks.length * timeFromStart3 > 0) {
-    valueFormula3 = gramAlcohol3/(gender * weight) - nationality/numberDrinks.length * timeFromStart3;
-      }
-      else {
-        valueFormula3 = 0;
-      }
-      totalPromillage();
+
+function formula3() {
+    if (gender === "0.55" && gramAlcohol3/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart3 >0) {
+    valueFormula3 = gramAlcohol3/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart3; 
+    }
+    else if(gender === "0.68" && gramAlcohol3/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart3 >0) {
+    valueFormula3 = gramAlcohol3/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart3;
+    } else {
+      valueFormula3 = 0; 
+    }
   }
 
   //timer four
-  function startCount4 () {
+function startCount4 () {
   reset = 0;
   var currentTime = new Date()
   t4 =  Date.parse(currentTime) / 60000; //minutes
 }
-  
-  function formula4() {
-      if (gramAlcohol4/(gender * weight) - nationality/numberDrinks.length * timeFromStart4 > 0) {
-    valueFormula4 = gramAlcohol4/(gender * weight) - nationality/numberDrinks.length * timeFromStart4;
-      }
-      else {
-        valueFormula4 = 0;
-      }
-      totalPromillage();
+
+function formula4() {
+    if (gender === "0.55" && gramAlcohol4/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart4 >0) {
+    valueFormula4 = gramAlcohol4/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart4; 
+    }
+    else if(gender === "0.68" && gramAlcohol4/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart4 >0) {
+    valueFormula4 = gramAlcohol4/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart4;
+    } else {
+      valueFormula4 = 0; 
+    }
   }
 
   //timer five
-  function startCount5 () {
+function startCount5 () {
   reset = 0;
   var currentTime = new Date()
   t5 =  Date.parse(currentTime) / 60000; //minutes
 }
-  
-  function formula5() {
-      if (gramAlcohol5/(gender * weight) - nationality/numberDrinks.length * timeFromStart5 > 0) {
-    valueFormula5 = gramAlcohol5/(gender * weight) - nationality/numberDrinks.length * timeFromStart5;
-      }
-      else {
-        valueFormula5 = 0;
-      }
-      totalPromillage();
+
+function formula5() {
+    if (gender === "0.55" && gramAlcohol5/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart5 >0) {
+    valueFormula5 = gramAlcohol5/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart5; 
+    }
+    else if(gender === "0.68" && gramAlcohol5/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart5 >0) {
+    valueFormula1 = gramAlcohol5/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart5;
+    } else {
+      valueFormula5 = 0; 
+    }
   }
 
   //timer six
-  function startCount6 () {
+function startCount6 () {
   reset = 0;
   var currentTime = new Date()
   t6 =  Date.parse(currentTime) / 60000; //minutes
 }
-  
-  function formula6() {
-      if (gramAlcohol6/(gender * weight) - nationality/numberDrinks.length * timeFromStart6 > 0) {
-    valueFormula6 = gramAlcohol6/(gender * weight) - nationality/numberDrinks.length * timeFromStart6;
-      }
-      else {
-        valueFormula6 = 0;
-      }
-      totalPromillage();
+
+function formula6() {
+    if (gender === "0.55" && gramAlcohol6/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart6 >0) {
+    valueFormula6 = gramAlcohol6/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart6; 
+    }
+    else if(gender === "0.68" && gramAlcohol6/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart6 >0) {
+    valueFormula6 = gramAlcohol6/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart6;
+    } else {
+      valueFormula6 = 0; 
+    }
   }
 
-  //timer seven
-  function startCount7 () {
+//timer seven
+function startCount7 () {
   reset = 0;
   var currentTime = new Date()
   t7 =  Date.parse(currentTime) / 60000; //minutes
 }
-  
-  function formula7() {
-      if (gramAlcohol7/(gender * weight) - nationality/numberDrinks.length * timeFromStart7 > 0) {
-    valueFormula7 = gramAlcohol7/(gender * weight) - nationality/numberDrinks.length * timeFromStart7;
-      }
-      else {
-        valueFormula7 = 0;
-      }
-      totalPromillage();
-  }  
+
+function formula7() {
+    if (gender === "0.55" && gramAlcohol7/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart7 >0) {
+    valueFormula7 = gramAlcohol7/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart7; 
+    }
+    else if(gender === "0.68" && gramAlcohol7/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart7 >0) {
+    valueFormula7 = gramAlcohol7/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart7;
+    } else {
+      valueFormula7 = 0; 
+    }
+  }
 
   //timer eight
-  function startCount8 () {
+function startCount8 () {
   reset = 0;
   var currentTime = new Date()
   t8 =  Date.parse(currentTime) / 60000; //minutes
 }
-  
-  function formula8() {
-      if (gramAlcohol8/(gender * weight) - nationality/numberDrinks.length * timeFromStart8 > 0) {
-    valueFormula8 = gramAlcohol8/(gender * weight) - nationality/numberDrinks.length * timeFromStart8;
-      }
-      else {
-        valueFormula8 = 0;
-      }
-      totalPromillage();
-  }    
+
+function formula8() {
+    if (gender === "0.55" && gramAlcohol8/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart8 >0) {
+    valueFormula8 = gramAlcohol8/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart8; 
+    }
+    else if(gender === "0.68" && gramAlcohol8/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart8 >0) {
+    valueFormula8 = gramAlcohol8/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart8;
+    } else {
+      valueFormula8 = 0; 
+    }
+  }
   
   //timer nine
-  function startCount9 () {
+function startCount9 () {
   reset = 0;
   var currentTime = new Date()
   t9 =  Date.parse(currentTime) / 60000; //minutes
 }
-  
-  function formula9() {
-      if (gramAlcohol9/(gender * weight) - nationality/numberDrinks.length * timeFromStart9 > 0) {
-    valueFormula9 = gramAlcohol8/(gender * weight) - nationality/numberDrinks.length * timeFromStart9;
-      }
-      else {
-        valueFormula9 = 0;
-      }
-      totalPromillage();
-  }   
+
+function formula9() {
+    if (gender === "0.55" && gramAlcohol9/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart9 >0) {
+    valueFormula9 = gramAlcohol9/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart9; 
+    }
+    else if(gender === "0.68" && gramAlcohol9/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart9 >0) {
+    valueFormula9 = gramAlcohol9/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart9;
+    } else {
+      valueFormula9 = 0; 
+    }
+  } 
   
   //timer ten
-  function startCount10 () {
+ 
+function startCount10 () {
   reset = 0;
   var currentTime = new Date()
   t10 =  Date.parse(currentTime) / 60000; //minutes
-  alert("After this drink the app will not add an other drink")
+    alert("After this drink the app will not add an other drink");
 }
+
+function formula10() {
+        if (gender === "0.55" && gramAlcohol10/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart10 >0) {
+    valueFormula10 = gramAlcohol10/(2.135 - 0.02556 * age + 0.08551 * height + 0.2491 * weight) - 0.125 / 60 * timeFromStart10; 
+    }
+    else if(gender === "0.68" && gramAlcohol10/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart10 >0) {
+    valueFormula10 = gramAlcohol10/(2.447 - 0.09516 * age + 0.1074 * height + 0.3362 * weight) - 0.125 / 60 * timeFromStart10;
+    } else {
+      valueFormula10 = 0; 
+    }
+  }
   
-  function formula10() {
-      if (gramAlcohol10/(gender * weight) - nationality/numberDrinks.length * timeFromStart10 > 0) {
-    valueFormula10 = gramAlcohol10/(gender * weight) - nationality/numberDrinks.length * timeFromStart10;
-      }
-      else {
-        valueFormula10 = 0;
-      }
-      totalPromillage();
-  }  
-  
+    
   //reset all                     
   function resetCount() {
     reset = 1;
@@ -777,8 +863,6 @@ var herhaal = setInterval(myTimer, 1000);
             
            ShowZeroDrinks();
            ShowGreen();
-           addFormulas();
-          
         } 
       
   function getSum(total, num, x) {
@@ -801,6 +885,7 @@ var herhaal = setInterval(myTimer, 1000);
     ShowYellow();
   } else if (BACFormula > 1) {
     ShowRed();
+    //alertTooMuch();
   } else {
     ShowGreen();
   }
@@ -809,11 +894,13 @@ var herhaal = setInterval(myTimer, 1000);
   //Show circle 
   function ShowYellow() { 
   document.getElementById("yellowCircle").checked = true;
-
+  message = 1;
 }
   
-  function ShowRed() { 
+  function ShowRed() {    
   document.getElementById("greenCircle").checked = true; //Het klopt dat groen en rood omgedraaid zit
+  alertTooMuch();
+  message = 0;
   }
     
   function ShowGreen() { 
@@ -913,6 +1000,3 @@ document.getElementById("showTimeTillSober").style.display = "";             doc
 setTimeout(function() {
   $("#logo").fadeOut();
 }, 2*1000);
-
-
-
